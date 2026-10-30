@@ -14,17 +14,24 @@ jobs:
 
       - name: Unzip project
         run: |
-          if [ -f PSEBrowser.zip ]; then
-            unzip -q PSEBrowser.zip
-            shopt -s dotglob
-            mv PSEBrowser/* .
-            rmdir PSEBrowser
-            echo "Unzipped successfully"
-            ls -la
-          else
-            echo "PSEBrowser.zip not found!"
+          echo "=== Files before unzip ==="
+          ls -la
+          if [ ! -f PSEBrowser.zip ]; then
+            echo "ERROR: PSEBrowser.zip not found!"
             exit 1
           fi
+          unzip -q PSEBrowser.zip
+          echo "=== After unzip ==="
+          ls -la
+          # Remove conflicting .github from zip so it doesn't overwrite
+          rm -rf PSEBrowser/.github
+          # Move everything else to root
+          cp -r PSEBrowser/* .
+          cp -r PSEBrowser/.[!.]* . 2>/dev/null || true
+          rm -rf PSEBrowser
+          echo "=== Final structure ==="
+          ls -la
+          ls -la app/ || true
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
